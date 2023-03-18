@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://brsfwq4c2cyui"]
 
 [ext_resource type="PackedScene" uid="uid://ddbyasx4g1cfl" path="res://assets/raw_square.glb" id="1_ah2uq"]
-[ext_resource type="Script" path="res://source/raw_square.gd" id="2_2pt1i"]
+[ext_resource type="Script" path="res://source/decompose_new.gd" id="2_tce0w"]
 [ext_resource type="Shader" path="res://source/raw_ship.gdshader" id="3_hmhvh"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_jxawb"]
@@ -11,7 +11,7 @@ shader_parameter/albedo = Color(1, 0, 0, 1)
 shader_parameter/thickness = 0.1
 
 [node name="raw_square" node_paths=PackedStringArray("children_mesh") instance=ExtResource("1_ah2uq")]
-script = ExtResource("2_2pt1i")
+script = ExtResource("2_tce0w")
 children_mesh = NodePath("Cube")
 
 [node name="Cube" parent="." index="0"]

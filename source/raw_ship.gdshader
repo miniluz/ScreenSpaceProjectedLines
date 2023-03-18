@@ -10,7 +10,6 @@ void vertex() {
 	
 	if (CUSTOM0.w * CUSTOM0.w > 0.1) {
 	
-	float thick = thickness * round(CUSTOM0.w);
 	vec4 next = PROJECTION_MATRIX * (MODELVIEW_MATRIX * vec4(CUSTOM0.xyz, 1));
 	vec4 prev = PROJECTION_MATRIX * (MODELVIEW_MATRIX * vec4(CUSTOM1.xyz, 1));
 	
@@ -26,27 +25,30 @@ void vertex() {
 	float cosb = dot(AB, CB);
 	vec2 offset;
 	
-	if (cosb < -0.99) {
-		offset = vec2(-AB.y, AB.x) * thick;
+	if (cosb < -0.99 || cosb > 0.99) {
+		offset = vec2(-AB.y, AB.x) * CUSTOM0.w;
 	}
 	else {
 	
 	float isinb = inversesqrt(1. - cosb * cosb);
 	
-	vec2 u = AB * thick * isinb;
-	vec2 v = CB * thick * isinb;
+	vec2 u = AB * CUSTOM0.w * isinb;
+	vec2 v = CB * CUSTOM0.w * isinb;
 	
-	offset = (u + v);
+	offset = u + v;
 	
-	const float limit = 2.;
+	const float limit = 5.;
 	
-	if (offset.x*offset.x + offset.y*offset.y > limit * limit * thick * thick) {
-		offset = normalize(offset) * limit * abs(thick);
+	float excess = length(offset) - limit;
+	
+	if (excess > 0.) {
+		// offset = normalize(offset) * limit * abs(thick);
+		offset = u - v;
 	}
 	
 	}
 	
-	POSITION = vect + vec4(offset * inv_scaling,0,0) + vec4(0,0,0.01,0);
+	POSITION = vect + vec4(offset * inv_scaling * thickness,0,0) + vec4(0,0,0.01,0);
 	
 	}
 	else {
