@@ -12,24 +12,43 @@ func get_neighbor_vertices(vertex_id: int, edges: Array) -> PackedInt32Array:
 	
 	return near
 
+func get_faces(va_matches: PackedInt32Array, vb_matches: PackedInt32Array) -> PackedInt32Array:
+	var new_faces: PackedInt32Array = []
+	for va in va_matches:
+		for vb in vb_matches:
+			## va     va *-* va+1
+			## |  ==>    |X|
+			## vb     vb *-* vb+1
+
+			new_faces += PackedInt32Array([va  , va+1, vb+1]) #  \|
+			new_faces += PackedInt32Array([va+1, vb+1, vb  ]) #  /|
+			new_faces += PackedInt32Array([va  , vb+1, vb  ]) # |\ 
+			new_faces += PackedInt32Array([va  , va+1, vb  ]) # |/
+
+	return new_faces
+
+
 func _ready() -> void:
 	print(name)
 	var raw_mesh: ArrayMesh = children_mesh.mesh
 	
-	var surface_number: int = raw_mesh.get_surface_count() 
+	# var surface_number: int = raw_mesh.get_surface_count() 
 
-	print("Surface number: ", surface_number)
+	# print("Surface number: ", surface_number)
 
-	print("Type: ", raw_mesh.surface_get_primitive_type(0))
+	# print("Type: ", raw_mesh.surface_get_primitive_type(0))
 	
 	var vertices: PackedVector3Array = raw_mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
 	var edges: PackedInt32Array = raw_mesh.surface_get_arrays(0)[Mesh.ARRAY_INDEX]
 
-	print("Edges: ", edges)
+	# print("Edges: ", len(edges) / 2)
+	# print("Verts: ", len(vertices))
 	
 	var actual_edges: Array = []
 	for i in range(0,len(edges),2):
 		actual_edges.append(Vector2i(edges[i], edges[i+1]))
+
+	var vertices_map: Array = range(len(vertices)).map(func (_a): return PackedInt32Array())
 
 	var new_vertices: PackedVector3Array = []
 	var new_faces: PackedInt32Array = []
@@ -40,15 +59,16 @@ func _ready() -> void:
 	## Assign next, previous, push
 	## Connect the faces
 
+	var count: int = 0;
 	for i in range(len(vertices)):
-		print("Vector ", i)
+		# print("Vector ", i)
 		var vertex: Vector3 = vertices[i]
 
 		### ==== COMPUTE NEXT, PREVIOUS ====
 		var prev: Vector3
 		var next: Vector3
 		var neighboring: PackedInt32Array = get_neighbor_vertices(i, actual_edges)
-		print("Neighbors: ", neighboring)
+		# print("Neighbors: ", neighboring)
 
 		## If there are no edges:
 		if len(neighboring) == 0:
@@ -60,21 +80,10 @@ func _ready() -> void:
 			next = vertex + vertex - prev # p -- v -- n to keep the end straight
 
 		## If there are exactly two:
-		elif len(neighboring) == 2:
+		elif len(neighboring) == 2 || len(neighboring) == 3:
 			prev = vertices[neighboring[0]]
 			next = vertices[neighboring[1]]
 		
-		## If there are more than two:
-		elif len(neighboring) == 3:
-			# Get the two closest vertically
-			var neighboring_array: Array = [] # [[index, y_diff]]
-			for j in neighboring:
-				neighboring_array.append([j, abs(vertices[j].y - vertex.y)])
-			neighboring_array.sort_custom(func (a, b): return a[1] < b[1])
-
-			prev = vertices[neighboring_array[0][0]]
-			next = vertices[neighboring_array[1][0]]
-		##
 		else:
 			continue
 		### /=== COMPUTE NEXT, PREVIOUS ===/
@@ -82,57 +91,53 @@ func _ready() -> void:
 		### ==== CONVERT EVERY VERTEX INTO TWO ====
 		## CUSTOM0: [next.x, next.y, next.z, +-1]
 		## CUSTOM1: [prev.x, prev.y, prev.z, +-1] 
-		new_vertices.append(vertex)
-		new_vertices.append(vertex)
 
-		print("prev: ", prev)
-		print("vert: ", vertex)
-		print("next: ", next)
+		new_vertices += PackedVector3Array([vertex, vertex])
+		vertices_map[i].append(count)
+		count += 2
 
-		new_custom0.append(next.x)
-		new_custom0.append(next.y)
-		new_custom0.append(next.z)
-		new_custom0.append(+1)
-		new_custom0.append(next.x)
-		new_custom0.append(next.y)
-		new_custom0.append(next.z)
-		new_custom0.append(-1)
+		new_custom0  += PackedFloat32Array([next.x, next.y, next.z, +1])
+		new_custom0  += PackedFloat32Array([next.x, next.y, next.z, -1])
+		new_custom1  += PackedFloat32Array([prev.x, prev.y, prev.z, +1])
+		new_custom1  += PackedFloat32Array([prev.x, prev.y, prev.z, -1])
 
-		new_custom1.append(prev.x)
-		new_custom1.append(prev.y)
-		new_custom1.append(prev.z)
-		new_custom1.append(+1)
-		new_custom1.append(prev.x)
-		new_custom1.append(prev.y)
-		new_custom1.append(prev.z)
-		new_custom1.append(-1)
+		if len(neighboring) != 3:
+			continue
+
+		prev = vertices[neighboring[1]]
+		next = vertices[neighboring[2]]
+
+		new_vertices += PackedVector3Array([vertex, vertex])
+		vertices_map[i].append(count)
+		count += 2
+
+		new_custom0  += PackedFloat32Array([next.x, next.y, next.z, +1])
+		new_custom0  += PackedFloat32Array([next.x, next.y, next.z, -1])
+		new_custom1  += PackedFloat32Array([prev.x, prev.y, prev.z, +1])
+		new_custom1  += PackedFloat32Array([prev.x, prev.y, prev.z, -1])
+
+		prev = vertices[neighboring[0]]
+		next = vertices[neighboring[2]]
+
+		new_vertices += PackedVector3Array([vertex, vertex])
+		vertices_map[i].append(count)
+		count += 2
+
+		new_custom0  += PackedFloat32Array([next.x, next.y, next.z, +1])
+		new_custom0  += PackedFloat32Array([next.x, next.y, next.z, -1])
+		new_custom1  += PackedFloat32Array([prev.x, prev.y, prev.z, +1])
+		new_custom1  += PackedFloat32Array([prev.x, prev.y, prev.z, -1])
+
+
+
+
 		### /=== CONVERT EVERY VERTEX INTO TWO ===/
 	
 	for edge in actual_edges:
 		var i = edge.x
 		var j = edge.y
 
-		## i     2i *-* 2i+1
-		## | ==>    |X|
-		## j     2j *-* 2j+1
-
-		new_faces.append(2*i)
-		new_faces.append(2*j+1)
-		new_faces.append(2*j)
-
-		new_faces.append(2*i)
-		new_faces.append(2*i+1)
-		new_faces.append(2*j)
-
-		new_faces.append(2*i)
-		new_faces.append(2*i+1)
-		new_faces.append(2*j+1)
-
-		new_faces.append(2*i+1)
-		new_faces.append(2*j+1)
-		new_faces.append(2*j)
-
-	## Generate new mesh from this data
+		new_faces += get_faces(vertices_map[i], vertices_map[j])
 
 	var new_mesh = ArrayMesh.new()
 
