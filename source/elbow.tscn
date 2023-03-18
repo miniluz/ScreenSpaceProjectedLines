@@ -1,0 +1,18 @@
+[gd_scene load_steps=5 format=3 uid="uid://d3wt0nec8uxt0"]
+
+[ext_resource type="PackedScene" uid="uid://bs0p58jrkm1xr" path="res://assets/elbow.glb" id="1_dl85m"]
+[ext_resource type="Shader" path="res://source/raw_ship.gdshader" id="2_bmvbp"]
+[ext_resource type="Script" path="res://source/raw_square.gd" id="2_bneuu"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_y27xx"]
+render_priority = 0
+shader = ExtResource("2_bmvbp")
+shader_parameter/albedo = Color(1, 0, 0, 1)
+shader_parameter/thickness = 0.1
+
+[node name="elbow" node_paths=PackedStringArray("children_mesh") instance=ExtResource("1_dl85m")]
+script = ExtResource("2_bneuu")
+children_mesh = NodePath("Cube")
+
+[node name="Cube" parent="." index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_y27xx")

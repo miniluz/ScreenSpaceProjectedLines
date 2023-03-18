@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://lum2g1rka0vp"]
+
+[ext_resource type="PackedScene" uid="uid://brq5icjb1rxa0" path="res://assets/full_square.glb" id="1_2p1rq"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tyeid"]
+
+[node name="full_square" instance=ExtResource("1_2p1rq")]
+
+[node name="Cube" parent="." index="0"]
+surface_material_override/0 = SubResource("StandardMaterial3D_tyeid")
