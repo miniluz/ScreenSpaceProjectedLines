@@ -2,11 +2,11 @@
 
 [ext_resource type="PackedScene" uid="uid://ddbyasx4g1cfl" path="res://assets/raw_square.glb" id="1_ah2uq"]
 [ext_resource type="Script" path="res://source/decompose_new.gd" id="2_tce0w"]
-[ext_resource type="Shader" path="res://source/raw_ship.gdshader" id="3_hmhvh"]
+[ext_resource type="Shader" path="res://switcheroo-limit.gdshader" id="3_eq1oc"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_jxawb"]
 render_priority = 0
-shader = ExtResource("3_hmhvh")
+shader = ExtResource("3_eq1oc")
 shader_parameter/albedo = Color(1, 0, 0, 1)
 shader_parameter/thickness = 0.1
 

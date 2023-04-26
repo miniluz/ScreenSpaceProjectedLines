@@ -27,10 +27,10 @@ script = ExtResource("2_54rns")
 
 [node name="raw_square" parent="Rotator" instance=ExtResource("1_w15sx")]
 transform = Transform3D(1, 7.45058e-08, -2.98023e-08, -2.10734e-08, 0.707107, 0.707107, 2.10734e-08, -0.707107, 0.707107, 0, 0, 0)
-visible = false
 
 [node name="ship-wireframe" parent="Rotator" instance=ExtResource("1_2b7hs")]
 transform = Transform3D(1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 0, 0)
+visible = false
 
 [node name="elbow" parent="Rotator" instance=ExtResource("4_qm0uy")]
 transform = Transform3D(1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 0, 0)
