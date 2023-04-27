@@ -8,14 +8,6 @@ uniform float thickness;
 void vertex() {
 	vec4 vect = PROJECTION_MATRIX * (MODELVIEW_MATRIX * vec4(VERTEX, 1));
 	
-	if (CUSTOM0.w * CUSTOM0.w < 0.1) {
-		/* This runs if CUSTOM0 is not set */
-		/* It's done so you can see what the ship looks like in the editor normally */
-		
-		POSITION = vect;
-	
-	}
-	
 	vec4 next = PROJECTION_MATRIX * (MODELVIEW_MATRIX * vec4(CUSTOM0.xyz, 1));
 	vec4 prev = PROJECTION_MATRIX * (MODELVIEW_MATRIX * vec4(CUSTOM1.xyz, 1));
 	
@@ -31,7 +23,7 @@ void vertex() {
 	float cosb = dot(AB, CB);
 	vec2 offset;
 	
-	if (cosb * cosb > 0.99) {
+	if (cosb * cosb > 0.999999) {
 		offset = vec2(-AB.y, AB.x) * CUSTOM0.w;
 	}
 	else {
@@ -39,22 +31,41 @@ void vertex() {
 		float isinb = inversesqrt(1. - cosb * cosb);
 		
 		vec2 u = AB * CUSTOM0.w * isinb;
-		vec2 v = CB * CUSTOM0.w * isinb;
+		vec2 v = CB * CUSTOM1.w * isinb;
 		
-		offset = u + v;
-		
-		const float limit = 3.;
-		
-		float excess = length(offset) - limit;
-		
-		if (excess > 0.) {
-			offset = u - v;
+		if (CUSTOM0.w == CUSTOM1.w) {
+			if (cosb > 0.) {
+				offset = u - v;
+			} else {
+				offset = u + v;
+			}
+		} else {
+			if (cosb > 0.) {
+				offset = u - v;
+			} else {
+				offset = vec2(0., 0.);
+			}
+			
+			const float limit = 3.;
+			float excess = length(offset) - limit;
+			
+			if (excess > 0.) {
+				offset = normalize(offset) * limit;
+			}
+			
 		}
 	
 	}
 	
 	POSITION = vect + vec4(offset * inv_scaling * thickness,0,0); // + vec4(0,0,0.01,0);
 	
+	if (CUSTOM0.w * CUSTOM0.w < 0.1) {
+		/* This runs if CUSTOM0 is not set */
+		/* It's done so you can see what the ship looks like in the editor normally */
+		
+		POSITION = vect;
+	
+	}
 }
 
 void fragment() {

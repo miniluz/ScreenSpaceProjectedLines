@@ -3,8 +3,9 @@ extends Node3D
 @export var children_mesh: MeshInstance3D
 
 func get_neighbor_vertices(vertex_id: int, edges: PackedInt32Array) -> PackedInt32Array:
+	# Gets a vertex id and the edges and returns all neighbors
 	var near: PackedInt32Array = []
-	for i in range(0, len(edges), 2):
+	for i in range(0, len(edges), 2): # For every edge (pair of vertices)
 		if vertex_id == edges[i]:
 			near.append(edges[i+1])
 		elif vertex_id == edges[i+1]:
@@ -12,7 +13,8 @@ func get_neighbor_vertices(vertex_id: int, edges: PackedInt32Array) -> PackedInt
 	
 	return near
 
-func get_edge_index(va: int, vb: int, edges: PackedInt32Array) -> int:
+func get_edge_half_index(va: int, vb: int, edges: PackedInt32Array) -> int:
+	# Get half of an edge's index based on it's component vertices
 	for i in range(0, len(edges)/2):
 		if va == edges[2*i] && vb == edges[2*i+1]\
 		|| vb == edges[2*i] && va == edges[2*i+1]:
@@ -46,11 +48,11 @@ func _ready() -> void:
 	# print("Edges: ", len(edges) / 2)
 	# print("Verts: ", len(vertices))
 	
-	var actual_edges: Array = []
+	var new_edges: Array = []
 	for i in range(0,len(edges),2):
-		actual_edges.append(Vector2i(edges[i], edges[i+1]))
+		new_edges.append(Vector2i(edges[i], edges[i+1]))
 
-	print ("Actual edges: ", actual_edges)
+	print ("Actual edges: ", new_edges)
 
 	var new_vertices: PackedVector3Array = []
 	new_vertices.resize(len(vertices) * 2)
@@ -65,14 +67,14 @@ func _ready() -> void:
 	## Connect the faces
 
 	var new_verts: int = 0
-	for i in range(len(vertices)):
+	for vertex_index in range(len(vertices)):
 		# print("Vector ", i)
-		var vertex: Vector3 = vertices[i]
+		var vertex: Vector3 = vertices[vertex_index]
 
 		### ==== COMPUTE NEXT, PREVIOUS ====
 		var prev: Vector3
 		var next: Vector3
-		var neighboring: PackedInt32Array = get_neighbor_vertices(i, edges)
+		var neighboring: PackedInt32Array = get_neighbor_vertices(vertex_index, edges)
 		# print("Neighbors: ", neighboring)
 
 		## If there are no edges:
@@ -91,8 +93,8 @@ func _ready() -> void:
 		
 		elif len(neighboring) == 3:
 			var neighboring_actual = []
-			for j in neighboring:
-				neighboring_actual.append([j, abs(vertices[j].y - vertex.y)])
+			for neighbor in neighboring:
+				neighboring_actual.append([neighbor, abs(vertices[neighbor].y - vertex.y)])
 			neighboring_actual.sort_custom(func (a,b): return a[1] > b[1])
 			prev = vertices[neighboring_actual[0][0]]
 			next = vertices[neighboring_actual[1][0]]
@@ -105,6 +107,8 @@ func _ready() -> void:
 		### ==== CONVERT EVERY VERTEX INTO TWO ====
 		## CUSTOM0: [next.x, next.y, next.z, +-1]
 		## CUSTOM1: [prev.x, prev.y, prev.z, +-1] 
+
+		var i = vertex_index
 		
 		new_vertices[2*i]   = vertex
 		new_vertices[2*i+1] = vertex
@@ -130,11 +134,11 @@ func _ready() -> void:
 		if len(neighboring) != 3:
 			continue
 
-		var index: int = get_edge_index(i, neighboring[2], edges)
-		var edge: Vector2i = actual_edges[index]
+		var edge_index: int = get_edge_half_index(vertex_index, neighboring[2], edges)
+		var edge: Vector2i = new_edges[edge_index]
 		if edge.x != neighboring[2]:
 			edge = Vector2i(edge.y, edge.x)
-		actual_edges[index] = Vector2i(edge.x, len(vertices)+new_verts)
+		new_edges[edge_index] = Vector2i(edge.x, len(vertices)+new_verts)
 		print("Creating new vert at ", len(vertices)+new_verts)
 		new_verts += 1
 
@@ -151,9 +155,9 @@ func _ready() -> void:
 
 		### /=== CONVERT EVERY VERTEX INTO TWO ===/
 	
-	print ("Actual edges: ", actual_edges)
+	print ("New edges: ", new_edges)
 	
-	for edge in actual_edges:
+	for edge in new_edges:
 		var i = edge.x
 		var j = edge.y
 

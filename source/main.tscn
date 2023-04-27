@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3 uid="uid://bmb0q7rt00rhj"]
+[gd_scene load_steps=7 format=3 uid="uid://bmb0q7rt00rhj"]
 
-[ext_resource type="PackedScene" uid="uid://o8ft5ihb78q7" path="res://source/raw_ship.tscn" id="1_2b7hs"]
-[ext_resource type="PackedScene" uid="uid://brsfwq4c2cyui" path="res://source/raw_square.tscn" id="1_w15sx"]
+[ext_resource type="PackedScene" uid="uid://drkjtv6mx47r" path="res://source/raw_ship.tscn" id="1_2b7hs"]
+[ext_resource type="PackedScene" uid="uid://c1xhygjquhlpc" path="res://source/raw_square.tscn" id="1_w15sx"]
 [ext_resource type="Script" path="res://source/Rotator.gd" id="2_54rns"]
-[ext_resource type="PackedScene" uid="uid://d3wt0nec8uxt0" path="res://source/elbow.tscn" id="4_qm0uy"]
+[ext_resource type="Script" path="res://source/luz_joint_model_changer.gd" id="3_bjphx"]
+[ext_resource type="ArrayMesh" uid="uid://bdabwghuusoit" path="res://assets/processed/hey.res" id="5_vkr3b"]
 
 [sub_resource type="Environment" id="Environment_r81fh"]
 background_mode = 1
@@ -22,16 +23,15 @@ transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 3.5
 size = 10.0
 
 [node name="Rotator" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.707107, -0.707107, 0, 0.707107, 0.707107, 0, 0, 0)
 script = ExtResource("2_54rns")
+enable = true
 
 [node name="raw_square" parent="Rotator" instance=ExtResource("1_w15sx")]
-transform = Transform3D(1, 7.45058e-08, -2.98023e-08, -2.10734e-08, 0.707107, 0.707107, 2.10734e-08, -0.707107, 0.707107, 0, 0, 0)
+visible = false
+script = ExtResource("3_bjphx")
 
 [node name="ship-wireframe" parent="Rotator" instance=ExtResource("1_2b7hs")]
-transform = Transform3D(1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 0, 0)
 visible = false
 
-[node name="elbow" parent="Rotator" instance=ExtResource("4_qm0uy")]
-transform = Transform3D(1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 0, 0)
-visible = false
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Rotator"]
+mesh = ExtResource("5_vkr3b")

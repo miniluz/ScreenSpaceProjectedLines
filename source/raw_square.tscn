@@ -1,17 +1,17 @@
-[gd_scene load_steps=5 format=3 uid="uid://brsfwq4c2cyui"]
+[gd_scene load_steps=5 format=3 uid="uid://c1xhygjquhlpc"]
 
 [ext_resource type="PackedScene" uid="uid://ddbyasx4g1cfl" path="res://assets/raw_square.glb" id="1_ah2uq"]
-[ext_resource type="Script" path="res://source/decompose_new.gd" id="2_tce0w"]
-[ext_resource type="Shader" path="res://switcheroo-limit.gdshader" id="3_eq1oc"]
+[ext_resource type="Script" path="res://source/model_changer.gd" id="2_ecyhy"]
+[ext_resource type="Shader" path="res://source/luz-joint.gdshader" id="3_fdoib"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_jxawb"]
 render_priority = 0
-shader = ExtResource("3_eq1oc")
+shader = ExtResource("3_fdoib")
 shader_parameter/albedo = Color(1, 0, 0, 1)
 shader_parameter/thickness = 0.1
 
 [node name="raw_square" node_paths=PackedStringArray("children_mesh") instance=ExtResource("1_ah2uq")]
-script = ExtResource("2_tce0w")
+script = ExtResource("2_ecyhy")
 children_mesh = NodePath("Cube")
 
 [node name="Cube" parent="." index="0"]

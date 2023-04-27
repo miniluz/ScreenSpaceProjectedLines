@@ -1,9 +1,6 @@
+res://source/luz-joint-import-script.gd
 res://source/raw_square.tscn
-res://source/raw_ship.gdshader
 res://source/main.tscn
 res://source/raw_ship.tscn
 res://source/elbow.tscn
-res://no-limit.gdshader
-res://no-depth.gdshader
-res://addons/godot-gif-getter/GifGetterUI.gd
-res://switcheroo-limit.gdshader
+res://assets/processed/hey.res
