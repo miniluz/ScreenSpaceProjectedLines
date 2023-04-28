@@ -1,6 +1,6 @@
-res://source/luz-joint-import-script.gd
-res://source/raw_square.tscn
-res://source/main.tscn
-res://source/raw_ship.tscn
-res://source/elbow.tscn
+res://source/scenes/raw_square.tscn
 res://assets/processed/hey.res
+res://source/scenes/main.tscn
+res://source/scenes/raw_ship.tscn
+res://source/scenes/elbow.tscn
+res://source/code/raw_square.gd

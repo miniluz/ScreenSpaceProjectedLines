@@ -1,14 +1,15 @@
-[gd_scene load_steps=5 format=3 uid="uid://drkjtv6mx47r"]
+[gd_scene load_steps=5 format=3 uid="uid://bb53cg0f854bt"]
 
 [ext_resource type="PackedScene" uid="uid://df4mn6njv8mip" path="res://assets/ship-wireframe.glb" id="1_3sp4o"]
-[ext_resource type="Script" path="res://source/luz_joint_model_changer.gd" id="2_jwxwp"]
-[ext_resource type="Shader" path="res://source/luz-joint.gdshader" id="3_23ofv"]
+[ext_resource type="Script" path="res://source/code/luz_joint_model_changer.gd" id="2_jwxwp"]
+[ext_resource type="Shader" path="res://source/shaders/luz-joint.gdshader" id="3_o84e7"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_ynsr1"]
 render_priority = 0
-shader = ExtResource("3_23ofv")
+shader = ExtResource("3_o84e7")
 shader_parameter/albedo = Color(1, 0, 0.647059, 1)
 shader_parameter/thickness = 0.03
+shader_parameter/emission_energy = null
 
 [node name="ship-wireframe" node_paths=PackedStringArray("children_mesh") instance=ExtResource("1_3sp4o")]
 script = ExtResource("2_jwxwp")

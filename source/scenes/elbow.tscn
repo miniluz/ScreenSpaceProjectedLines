@@ -1,17 +1,17 @@
-[gd_scene load_steps=5 format=3 uid="uid://cvb8fnpyope65"]
+[gd_scene load_steps=5 format=3 uid="uid://djay0lkt2xfuf"]
 
 [ext_resource type="PackedScene" uid="uid://bs0p58jrkm1xr" path="res://assets/elbow.glb" id="1_dl85m"]
-[ext_resource type="Script" path="res://source/luz_joint_model_changer.gd" id="2_w5341"]
-[ext_resource type="Shader" path="res://source/switcheroo.gdshader" id="3_l34tg"]
+[ext_resource type="Script" path="res://source/code/luz_joint_model_changer.gd" id="2_vnaau"]
+[ext_resource type="Shader" path="res://source/shaders/switcheroo.gdshader" id="3_y6eid"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_y27xx"]
 render_priority = 0
-shader = ExtResource("3_l34tg")
+shader = ExtResource("3_y6eid")
 shader_parameter/albedo = Color(1, 0, 0, 1)
 shader_parameter/thickness = 0.1
 
 [node name="elbow" node_paths=PackedStringArray("children_mesh") instance=ExtResource("1_dl85m")]
-script = ExtResource("2_w5341")
+script = ExtResource("2_vnaau")
 children_mesh = NodePath("Cube")
 
 [node name="Cube" parent="." index="0"]

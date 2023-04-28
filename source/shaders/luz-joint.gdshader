@@ -3,6 +3,7 @@ render_mode cull_disabled;
 
 uniform vec4 albedo : source_color;
 uniform float thickness;
+uniform float emission_energy;
 
 
 void vertex() {
@@ -23,8 +24,15 @@ void vertex() {
 	float cosb = dot(AB, CB);
 	vec2 offset;
 	
+	const float limit = 1.5;
+
 	if (cosb * cosb > 0.999999) {
-		offset = vec2(-AB.y, AB.x) * CUSTOM0.w;
+		if (CUSTOM0.w == CUSTOM1.w) {
+			offset = vec2(-AB.y, AB.x) * CUSTOM0.w;
+		}
+		else {
+			offset = AB * CUSTOM0.w * limit;
+		}
 	}
 	else {
 		
@@ -46,7 +54,6 @@ void vertex() {
 				offset = vec2(0., 0.);
 			}
 			
-			const float limit = 3.;
 			float excess = length(offset) - limit;
 			
 			if (excess > 0.) {
@@ -70,5 +77,5 @@ void vertex() {
 
 void fragment() {
 	ALBEDO = albedo.rgb;
-	EMISSION = albedo.rgb;
+	EMISSION = albedo.rgb * emission_energy;
 }

@@ -106,11 +106,11 @@ func process_mesh(node):
 		elif len(neighboring) == 3:
 			var neighboring_actual = []
 			for neighbor in neighboring:
-				neighboring_actual.append([neighbor, abs(vertices[neighbor].y - vertex.y)])
+				neighboring_actual.append([neighbor, (vertices[neighbor] - vertex).length_squared()])
 			neighboring_actual.sort_custom(func (a,b): return a[1] < b[1])
-			prev = vertices[neighboring_actual[2][0]]
+			prev = vertices[neighboring_actual[0][0]]
 			next = vertices[neighboring_actual[1][0]]
-			neighboring[2] = neighboring_actual[0][0]
+			neighboring[2] = neighboring_actual[2][0]
 		
 		else:
 			continue
