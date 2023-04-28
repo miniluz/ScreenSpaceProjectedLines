@@ -1,6 +1,9 @@
-res://source/scenes/raw_square.tscn
-res://assets/processed/hey.res
+res://source/code/luz-joint-import-script.gd
 res://source/scenes/main.tscn
+res://assets/processed/ship-wireframe_Ship.res
+res://source/scenes/raw_square.tscn
 res://source/scenes/raw_ship.tscn
 res://source/scenes/elbow.tscn
-res://source/code/raw_square.gd
+res://source/code/miter-joint-import-script.gd
+res://assets/processed/miter-joint.res
+res://source/shaders/switcheroo.gdshader

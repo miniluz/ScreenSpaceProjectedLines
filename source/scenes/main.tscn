@@ -1,10 +1,8 @@
-[gd_scene load_steps=7 format=3 uid="uid://myvpe3dnf806"]
+[gd_scene load_steps=5 format=3 uid="uid://bl3akms5u8b3h"]
 
-[ext_resource type="PackedScene" path="res://source/scenes/raw_ship.tscn" id="1_2b7hs"]
 [ext_resource type="Script" path="res://source/code/Rotator.gd" id="1_gyc0o"]
-[ext_resource type="PackedScene" uid="uid://drrtekjde46fl" path="res://source/scenes/raw_square.tscn" id="1_w15sx"]
-[ext_resource type="Script" path="res://source/code/luz_joint_model_changer.gd" id="3_yicnr"]
-[ext_resource type="ArrayMesh" uid="uid://do0rb5umuquly" path="res://assets/processed/hey.res" id="5_vkr3b"]
+[ext_resource type="ArrayMesh" uid="uid://cthtkruhvpyt0" path="res://assets/processed/luz-joint-ship.res" id="2_ghtfh"]
+[ext_resource type="ArrayMesh" uid="uid://crgqkkjoqhmdq" path="res://assets/processed/miter-joint.res" id="3_eehl7"]
 
 [sub_resource type="Environment" id="Environment_r81fh"]
 background_mode = 1
@@ -28,12 +26,9 @@ size = 10.0
 script = ExtResource("1_gyc0o")
 enable = true
 
-[node name="raw_square" parent="Rotator" instance=ExtResource("1_w15sx")]
+[node name="Luz Joint" type="MeshInstance3D" parent="Rotator"]
 visible = false
-script = ExtResource("3_yicnr")
+mesh = ExtResource("2_ghtfh")
 
-[node name="ship-wireframe" parent="Rotator" instance=ExtResource("1_2b7hs")]
-visible = false
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Rotator"]
-mesh = ExtResource("5_vkr3b")
+[node name="Miter Joint" type="MeshInstance3D" parent="Rotator"]
+mesh = ExtResource("3_eehl7")

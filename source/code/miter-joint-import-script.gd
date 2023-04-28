@@ -1,6 +1,9 @@
-extends Node3D
+@tool
+extends EditorScenePostImport
 
-@export var children_mesh: MeshInstance3D
+func _post_import(scene):
+	iterate(scene)
+	return scene
 
 func get_neighbor_vertices(vertex_id: int, edges: PackedInt32Array) -> PackedInt32Array:
 	# Gets a vertex id and the edges and returns all neighbors
@@ -32,23 +35,21 @@ func get_faces(va: int, vb: int) -> PackedInt32Array:
 	va  , vb+1, vb,\
 	va  , va+1, vb])
 
-func _ready() -> void:
-	print(name)
-	var raw_mesh: ArrayMesh = children_mesh.mesh
+func iterate(node) -> void:
+	if not (node is MeshInstance3D):
+		for child in node.get_children():
+			iterate(child)
+	else:
+		process_mesh(node)
 	
-	# var surface_number: int = raw_mesh.get_surface_count() 
 
-	# print("Surface number: ", surface_number)
-
-	# print("Type: ", raw_mesh.surface_get_primitive_type(0))
+func process_mesh(node):	
+	var raw_mesh: ArrayMesh = node.mesh
 	
 	var vertices: PackedVector3Array = raw_mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
 	var edges: PackedInt32Array = raw_mesh.surface_get_arrays(0)[Mesh.ARRAY_INDEX]
 
-	# print("Edges: ", len(edges) / 2)
-	# print("Verts: ", len(vertices))
-	
-	var nv: int = 4 # new verts per vert
+	var nv: int = 2 # how many vertices each vertex gets turned into.
 	
 	var new_edges: PackedInt32Array = []
 	for vertex in edges:
@@ -63,50 +64,47 @@ func _ready() -> void:
 	new_custom1.resize(len(vertices) * 4 * nv)
 
 	## Convert each vertex into two vertices
-	## Assign next, previous, push
-	## Connect the faces
+	## Create the two luz vertices
+	## Assign next, previous, current
+	## Create the faces based on the old vertices
 
-	var new_verts: int = 0
+	var vertices_created: int = 0
 	
 	for vertex_index in range(len(vertices)):
-		# print(vertex_index * nv, ", ", new_edges)
 
 		var vertex: Vector3 = vertices[vertex_index]
 
-		### ==== COMPUTE NEXT, PREVIOUS ====
+		### ==== Compute next, previous ====
 		var prev: Vector3
 		var next: Vector3
 		var neighboring: PackedInt32Array = get_neighbor_vertices(vertex_index, edges)
-		# print("Neighbors: ", neighboring)
 
-		## If there are no edges:
 		if len(neighboring) == 0:
-			continue # forget
+			continue # skip if it has no neighbors
 
-		## If there is only one neighboring:
 		elif len(neighboring) == 1:
 			prev = vertices[neighboring[0]] # add the neighbor as previous
 			next = vertex + vertex - prev # p -- v -- n to keep the end straight
 
-		## If there are exactly two:
 		elif len(neighboring) == 2:
 			prev = vertices[neighboring[0]]
 			next = vertices[neighboring[1]]
 		
 		elif len(neighboring) == 3:
-			var neighboring_actual = []
+			var neighboring_actual = [] # needed because you can't sort PackedInt32Arrays
 			for neighbor in neighboring:
-				neighboring_actual.append([neighbor, abs(vertices[neighbor].y - vertex.y)])
+				neighboring_actual.append([neighbor, (vertices[neighbor] - vertex).length_squared()]) # Sort by distance
 			neighboring_actual.sort_custom(func (a,b): return a[1] < b[1])
-			prev = vertices[neighboring_actual[2][0]]
+
+			prev = vertices[neighboring_actual[0][0]] # Keep the two nearest connected
 			next = vertices[neighboring_actual[1][0]]
-			neighboring[2] = neighboring_actual[0][0]
+			neighboring[2] = neighboring_actual[2][0] # Later make a new connection for the furthest
 		
 		else:
-			continue
-		### /=== COMPUTE NEXT, PREVIOUS ===/
+			continue # skip if it has too many neighbors
+		### /=== Compute next, previous ===/
 
-		### ==== CONVERT EVERY VERTEX INTO TWO ====
+		### ==== Convert every vertex ====
 		## CUSTOM0: [next.x, next.y, next.z, +-1]
 		## CUSTOM1: [prev.x, prev.y, prev.z, +-1] 
 
@@ -114,12 +112,6 @@ func _ready() -> void:
 		
 		new_vertices[nv*i]   = vertex
 		new_vertices[nv*i+1] = vertex
-		new_vertices[nv*i+2] = vertex
-		new_vertices[nv*i+3] = vertex
-
-		# Luz joint!
-		new_faces += PackedInt32Array([nv*i, nv*i+1, nv*i+2])
-		new_faces += PackedInt32Array([nv*i, nv*i+1, nv*i+3])
 
 		new_custom0[nv*4*i  ] = next.x
 		new_custom0[nv*4*i+1] = next.y
@@ -129,15 +121,7 @@ func _ready() -> void:
 		new_custom0[nv*4*i+5] = next.y
 		new_custom0[nv*4*i+6] = next.z
 		new_custom0[nv*4*i+7] = -1
-		new_custom0[nv*4*i+ 8] = next.x
-		new_custom0[nv*4*i+ 9] = next.y
-		new_custom0[nv*4*i+10] = next.z
-		new_custom0[nv*4*i+11] = +1
-		new_custom0[nv*4*i+12] = next.x
-		new_custom0[nv*4*i+13] = next.y
-		new_custom0[nv*4*i+14] = next.z
-		new_custom0[nv*4*i+15] = -1
-
+		
 		new_custom1[nv*4*i  ] = prev.x
 		new_custom1[nv*4*i+1] = prev.y
 		new_custom1[nv*4*i+2] = prev.z
@@ -146,27 +130,15 @@ func _ready() -> void:
 		new_custom1[nv*4*i+5] = prev.y
 		new_custom1[nv*4*i+6] = prev.z
 		new_custom1[nv*4*i+7] = -1
-		new_custom1[nv*4*i+ 8] = prev.x
-		new_custom1[nv*4*i+ 9] = prev.y
-		new_custom1[nv*4*i+10] = prev.z
-		new_custom1[nv*4*i+11] = -1
-		new_custom1[nv*4*i+12] = prev.x
-		new_custom1[nv*4*i+13] = prev.y
-		new_custom1[nv*4*i+14] = prev.z
-		new_custom1[nv*4*i+15] = +1
-
 
 		if len(neighboring) == 3:
-			var edge_index: int = get_edge_index(vertex_index, neighboring[2], edges)
-			# print("index: ", edge_index)
-			# print("(", new_edges[edge_index], ", ", new_edges[edge_index+1], ") ", neighboring[2])
+			var edge_index: int = get_edge_index(vertex_index, neighboring[2], edges) # Get the index of the edge
 
-			if new_edges[edge_index] != neighboring[2] * nv:
+			if new_edges[edge_index] != neighboring[2] * nv: # swap to preserve other vertex if needed
 				new_edges[edge_index] = new_edges[edge_index+1]
 			
-			new_edges[edge_index+1] = nv*len(vertices)+new_verts*2
-			# print("Creating new vert at ", nv*len(vertices)+new_verts*2)
-			new_verts += 1
+			new_edges[edge_index+1] = nv*len(vertices)+vertices_created*2 # connect it to a new vertex
+			vertices_created += 1
 
 			prev = vertices[neighboring[2]]
 			next = vertex + (vertex - prev) 
@@ -179,19 +151,19 @@ func _ready() -> void:
 			new_custom1  += PackedFloat32Array([prev.x, prev.y, prev.z, -1])
 
 
-		### /=== CONVERT EVERY VERTEX INTO TWO ===/
+		### /=== Convert every vertex ===/
 	
-	# print ("New edges: ", new_edges)
-	
+	### ==== Turn each edge into a face ====
+
 	for i in range(0, len(new_edges), 2):
 		var a = new_edges[i]
 		var b = new_edges[i+1]
 
 		new_faces += get_faces(a, b)
 	
-	# for i in range(len(new_vertices)):
-	# 	print(i, ": ", new_vertices[i])
+	### /=== Turn each edge into a face ===/
 
+	# Generate new mesh
 	var new_mesh = ArrayMesh.new()
 
 	var new_arrays: Array = []
@@ -208,9 +180,4 @@ func _ready() -> void:
 	new_mesh.add_surface_from_arrays(Mesh.PrimitiveType.PRIMITIVE_TRIANGLES, new_arrays, [], {}, flags)
 	new_mesh.surface_set_material(0, raw_mesh.surface_get_material(0))
 
-	var child_mesh_instance = MeshInstance3D.new()
-	child_mesh_instance.mesh = new_mesh
-	child_mesh_instance.set_surface_override_material(0, children_mesh.get_surface_override_material(0))
-
-	add_child(child_mesh_instance)
-	children_mesh.queue_free()
+	ResourceSaver.save(new_mesh, "res://assets/processed/"+raw_mesh.resource_name+".res")

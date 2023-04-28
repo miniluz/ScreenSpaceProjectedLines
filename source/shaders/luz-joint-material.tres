@@ -1,0 +1,10 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://chpkcr2o6ws1o"]
+
+[ext_resource type="Shader" path="res://source/shaders/luz-joint.gdshader" id="1_fb5ou"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_fb5ou")
+shader_parameter/albedo = Color(1, 0.101961, 0.0980392, 1)
+shader_parameter/thickness = 0.05
+shader_parameter/emission_energy = 1.0

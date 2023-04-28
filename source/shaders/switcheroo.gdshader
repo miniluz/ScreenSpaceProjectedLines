@@ -43,7 +43,7 @@ void vertex() {
 		
 		offset = u + v;
 		
-		const float limit = 1.;
+		const float limit = 5.;
 		
 		float excess = length(offset) - limit;
 		

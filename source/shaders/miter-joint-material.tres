@@ -1,0 +1,9 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://ysfw7c7la6gr"]
+
+[ext_resource type="Shader" path="res://source/shaders/switcheroo.gdshader" id="1_gfr5c"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_gfr5c")
+shader_parameter/albedo = Color(1, 0, 0, 1)
+shader_parameter/thickness = 0.05
